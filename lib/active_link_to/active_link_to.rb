@@ -13,13 +13,13 @@ module ActiveLinkTo
     name = block_given? ? capture(&block) : args.shift
     options = args.shift || {}
     html_options = args.shift || {}
-    
+
     url = url_for(options)
 
     active_options  = { }
     link_options    = { }
     html_options.each do |k, v|
-      if [:active, :class_active, :class_inactive, :active_disable, :wrap_tag, :wrap_class].member?(k)
+      if [:active, :class_active, :class_inactive, :active_disable, :wrap_tag, :wrap_class, :wrap_data_attributes].member?(k)
         active_options[k] = v
       else
         link_options[k] = v
@@ -30,6 +30,7 @@ module ActiveLinkTo
 
     wrap_tag    = active_options[:wrap_tag].present? ? active_options[:wrap_tag] : nil
     wrap_class  = active_options[:wrap_class].present? ? active_options[:wrap_class] + ' ' : ''
+    wrap_data_attributes = active_options[:wrap_data_attributes].presence || nil
 
     if wrap_tag.present?
       wrap_class << active_link_to_class(url, active_options)
@@ -48,7 +49,8 @@ module ActiveLinkTo
       link_to(name, url, link_options)
     end
 
-    wrap_tag ? content_tag(wrap_tag, link, class: (wrap_class if wrap_class.present?)) : link
+    # Trust wrap_data_attributes
+    wrap_tag ? content_tag(wrap_tag, link, class: (wrap_class if wrap_class.present?), data: wrap_data_attributes) : link
   end
 
   # Returns css class name. Takes the link's URL and its params
